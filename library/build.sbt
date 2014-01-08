@@ -14,6 +14,6 @@ libraryDependencies ++= Seq(
 
 resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 
-scalacOptions ++= Seq("-feature")
+scalacOptions ++= Seq("-feature", "-Xlint")
 
 //offline := true

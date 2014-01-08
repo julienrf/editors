@@ -83,6 +83,8 @@ object EditorSpec extends Specification with Editors with SimpleLook {
 
     "handle bidirectional relations" in pending("(TODO)")
 
+    "support feedback logic definition" in pending("(TODO)")
+
     "do something in an app" in {
       status(Application.showForm(FakeRequest())) must equalTo (200)
     }
