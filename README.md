@@ -50,3 +50,26 @@ Use it with [autosource](https://github.com/mandubian/play-autosource):
 ```scala
 ???
 ```
+
+## Build from sources
+
+Clone the source code and run sbt from the repository root directory:
+
+```sh
+$ git clone git@github.com:julienrf/editors.git
+$ cd editors
+$ sbt
+```
+
+Run the tests:
+
+```
+> test
+```
+
+Or run a sample:
+
+```
+> project sample-backlog
+[sample-backlog] $ run
+```
