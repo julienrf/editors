@@ -11,7 +11,7 @@ trait Editors extends Look {
    */
   trait Editor[A] {
 
-    def ui: NodeSeq
+    def ui: UiType
 
     def formUi(action: Call) =
       <form action={ action.url } method={ action.method }>
@@ -33,7 +33,9 @@ trait Editors extends Look {
 
   object Editor {
 
-    def apply[A]: Editor[A] = ???
+    import language.experimental.macros
+
+    def apply[A]: Editor[A] = macro ???
 
 //    type EditorMaker[A] = String => Editor[A]
 //

@@ -10,9 +10,11 @@ import scala.xml.NodeSeq
 trait Look {
 
   /**
-   * Presentational data needed for this look
+   * Presentational data needed for this look (e.g. label, input name, placeholder, etc.)
    */
   type FieldData
+
+  type UiType = NodeSeq
 
   /**
    * It is left as an abstract type member so you can define your own typeclass and its companion object containing common implicit instances
@@ -25,12 +27,12 @@ trait Look {
    * @tparam A
    */
   trait UiLike[A] {
-    def ui(data: FieldData): NodeSeq
+    def ui(data: FieldData): UiType
   }
 
   // TODO Make it extensible (and abstract over NodeSeq)
   object look {
-    def append(fields: NodeSeq*) = fields.fold(NodeSeq.Empty)(_ ++ _)
+    def append(fields: UiType*) = fields.fold(NodeSeq.Empty)(_ ++ _)
   }
 
 }
@@ -60,6 +62,17 @@ trait SimpleLook extends Look {
     implicit val uiString: Ui[String] = new Ui[String] {
       def ui(key: String) = <input type="text" name={ key } />
     }
+
+    import scala.language.experimental.macros
+
+    case class Deps[A](Keys: Keys[A])
+
+    case class FieldDeps(key: String)
+
+    def apply[A : Keys] = macro ???
+
+    def fields[A : Keys] = macro ???
+
   }
 
 }
