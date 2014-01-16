@@ -18,4 +18,8 @@ object Keys {
 
   implicit def fields[A] = macro ???
 
+  // Expansion of the `Keys.fields[User]` macro call
+  def `fields[User]`(name: String = "name", age: String = "age") = Keys[User](name, age)
+  implicit def defaultUserKeys = `fields[User]`()
+
 }

@@ -38,5 +38,15 @@ object Mapping {
     def unbind(value: Double) = value.toString
   }
 
+  def `fields[User]`(name: Mapping[String] = implicitly[Mapping[String]], age: Mapping[Int] = implicitly[Mapping[Int]])(implicit Keys: Keys[User]) = new Mapping[User] {
+    def bind(key: String, data: Map[String, Seq[String]]) =
+      for {
+        nameValue <- name.bind(Keys.keys(0), data)
+        ageValue <- age.bind(Keys.keys(1), data)
+      } yield User(nameValue, ageValue)
+    def unbind(value: User) = ???
+  }
+  implicit def defaultUserMapping(implicit Keys: Keys[User], stringMapping: Mapping[String], intMapping: Mapping[Int]) = `fields[User]`()
+
 }
 

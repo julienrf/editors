@@ -73,6 +73,12 @@ trait SimpleLook extends Look {
 
     def fields[A : Keys] = macro ???
 
+    // Expansion of the `Ui.fields[User]` macro call
+    def `fields[User]`(name: Ui[String] = implicitly[Ui[String]], age: Ui[Int] = implicitly[Ui[Int]])(implicit Keys: Keys[User]) = new Ui[User] {
+      def ui(key: String) = look.append(name.ui(Keys.keys(0)), age.ui(Keys.keys(1))) // Why is the `key` parameter ignored?
+    }
+    implicit def defaultUserUi(implicit Keys: Keys[User], stringUi: Ui[String], intUi: Ui[Int]) = `fields[User]`()
+
   }
 
 }
