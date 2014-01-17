@@ -16,7 +16,7 @@ To my experience, developing an editor is one of the less productive engineering
     <span title="feedback logic" style="background-color: #C90A13;">&lt;option value=food&gt;</span>
     <span title="feedback logic" style="background-color: #C90A13;">&lt;option value=garden&gt;</span>
     <span title="feedback logic" style="background-color: #C90A13;">&lt;option value=home&gt;</span>
-  <span title="feedback logic" style="background-color: #C90A13;">&lt/datalist&gt;</span>
+  <span title="feedback logic" style="background-color: #C90A13;">&lt;/datalist&gt;</span>
   &lt;input <span title="data transmission" style="background-color: #F6FC4E;">name=price</span> <span title="data domain" style="background-color: #1FA34B;">type=number</span> <span title="user interface" style="background-color: #DD168D;">placeholder="Price (in Euros)"</span> <span title="feedback logic" style="background-color: #C90A13;">min=1 required</span>&gt;<span title="user interface" style="background-color: #DD168D;">&lt;br&gt;</span>
   <span title="user interface" style="background-color: #DD168D;">&lt;input type=submit /&gt;</span>
 &lt;/form&gt;
@@ -123,7 +123,7 @@ The other fields are left untouched, by default the UI generator assumes that fi
 
 #### Choose a theme
 
-The `Ui[A]` typeclass is responsible of generating the editor HTML markup. Default instances are provided in the `Ui` companion objects, generating input fields for common types. Using another theme is as simple as importing it, consider for instance the following code using a theme producing markup compatible with [Twitter Bootstrap](http://getbootstrap.com/):
+The `Ui[A]` typeclass is responsible of generating the editor HTML markup. Default instances are provided in the `Ui` companion object, generating input fields for common types. Using another theme is as simple as importing it, consider for instance the following code using a theme producing markup compatible with [Twitter Bootstrap](http://getbootstrap.com/):
 
 ```scala
 import editors.themes.twitterBootstrap._
