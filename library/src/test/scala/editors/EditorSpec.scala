@@ -42,6 +42,13 @@ object EditorSpec extends Specification with Editors with SimpleLook {
         form.descendant.contains(<input type="text" name="name" />) must beTrue
         form.descendant.contains(<input type="number" name="age" />) must beTrue
       }
+
+      "form with customized field" in {
+        implicit val userUi = Ui.`fields[User]`(age = Ui(key => Ui.input(key, "number") ++ <span>From 7 to 77.</span>))
+        editor.ui.contains(<input type="text" name="name" />) must beTrue
+        editor.ui.contains(<input type="number" name="age" />) must beTrue
+        editor.ui.contains(<span>From 7 to 77.</span>) must beTrue
+      }
     }
 
     "bind data from form submission" in {

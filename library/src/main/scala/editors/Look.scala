@@ -48,19 +48,19 @@ trait SimpleLook extends Look {
 
   object Ui {
     implicit val uiInt: Ui[Int] = new Ui[Int] {
-      def ui(key: String) = <input type="number" name={ key } />
+      def ui(key: String) = input(key, "number")
     }
 
     implicit val uiDouble: Ui[Double] = new Ui[Double] {
-      def ui(key: String) = <input type="number" name={ key } />
+      def ui(key: String) = input(key, "number")
     }
 
     implicit val uiBoolean: Ui[Boolean] = new Ui[Boolean] {
-      def ui(key: String) = <input type="checkbox" name={ key } />
+      def ui(key: String) = input(key, "checkbox")
     }
 
     implicit val uiString: Ui[String] = new Ui[String] {
-      def ui(key: String) = <input type="text" name={ key } />
+      def ui(key: String) = input(key)
     }
 
     import scala.language.experimental.macros
@@ -69,9 +69,14 @@ trait SimpleLook extends Look {
 
     case class FieldDeps(key: String)
 
-    def apply[A : Keys] = macro ???
+    def apply[A](uip: String => NodeSeq): Ui[A] = new Ui[A] {
+      def ui(key: String) = uip(key)
+    }
 
     def fields[A : Keys] = macro ???
+
+    // Look specific helper to build an input for a given field
+    def input(key: String, `type`: String = "text", attrs: Seq[(String, String)] = Seq.empty[(String, String)]) = <input type={ `type` } name={ key } />
 
     // Expansion of the `Ui.fields[User]` macro call
     def `fields[User]`(name: Ui[String] = implicitly[Ui[String]], age: Ui[Int] = implicitly[Ui[Int]])(implicit Keys: Keys[User]) = new Ui[User] {
