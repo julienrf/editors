@@ -8,30 +8,30 @@ Information and communications technologies bring up a lot of power to solve rea
 
 To my experience, developing an editor is one of the less productive engineering task. It seems that capitalizing editors code is challenging, probably because several abstraction layers and concerns are involved and entangled: user interface, feedback logic (completion, validation, etc.), data transmission from and to the server and data domain. Consider for instance the following HTML fragment defining a form to enter a shop item description:
 
-<div><code>
-&lt;form <span title="data transmission" style="background-color: #F6FC4E;">method=POST action="/item"</span>&gt;
-  &lt;input <span title="data transmission" style="background-color: #F6FC4E;">name=name</span> <span title="data domain" style="background-color: #1FA34B;">type=text</span> <span title="user interface" style="background-color: #DD168D;">placeholder="Name"</span> <span title="feedback logic" style="background-color: #C90A13;">required</span>&gt;<span title="user interface" style="background-color: #DD168D;">&lt;br&gt;</span>
-  &lt;input <span title="data transmission" style="background-color: #F6FC4E;">name=category</span> <span title="data domain" style="background-color: #1FA34B;">type=text</span> <span title="user interface" style="background-color: #DD168D;">placeholder="Category"</span> <span title="feedback logic" style="background-color: #C90A13;">datalist=categories</span>&gt;<span title="user interface" style="background-color: #DD168D;">&lt;br&gt;</span>
-  <span title="feedback logic" style="background-color: #C90A13;">&lt;datalist id=categories&gt;</span>
-    <span title="feedback logic" style="background-color: #C90A13;">&lt;option value=food&gt;</span>
-    <span title="feedback logic" style="background-color: #C90A13;">&lt;option value=garden&gt;</span>
-    <span title="feedback logic" style="background-color: #C90A13;">&lt;option value=home&gt;</span>
-  <span title="feedback logic" style="background-color: #C90A13;">&lt;/datalist&gt;</span>
-  &lt;input <span title="data transmission" style="background-color: #F6FC4E;">name=price</span> <span title="data domain" style="background-color: #1FA34B;">type=number</span> <span title="user interface" style="background-color: #DD168D;">placeholder="Price (in Euros)"</span> <span title="feedback logic" style="background-color: #C90A13;">min=1 required</span>&gt;<span title="user interface" style="background-color: #DD168D;">&lt;br&gt;</span>
-  <span title="user interface" style="background-color: #DD168D;">&lt;input type=submit /&gt;</span>
+<pre><code>
+&lt;form <span title="data transmission" style="background-color: #FFFCDD;">method=POST action="/item"</span>&gt;
+  &lt;input <span title="data transmission" style="background-color: #FFFCDD;">name=name</span> <span title="data domain" style="background-color: #DCF7F3;">type=text</span> <span title="user interface" style="background-color: #FFD8D8;">placeholder="Name"</span> <span title="feedback logic" style="background-color: #F5A2A2;">required</span>&gt;<span title="user interface" style="background-color: #FFD8D8;">&lt;br&gt;</span>
+  &lt;input <span title="data transmission" style="background-color: #FFFCDD;">name=category</span> <span title="data domain" style="background-color: #DCF7F3;">type=text</span> <span title="user interface" style="background-color: #FFD8D8;">placeholder="Category"</span> <span title="feedback logic" style="background-color: #F5A2A2;">datalist=categories</span>&gt;<span title="user interface" style="background-color: #FFD8D8;">&lt;br&gt;</span>
+  <span title="feedback logic" style="background-color: #F5A2A2;">&lt;datalist id=categories&gt;</span>
+    <span title="feedback logic" style="background-color: #F5A2A2;">&lt;option value=food&gt;</span>
+    <span title="feedback logic" style="background-color: #F5A2A2;">&lt;option value=garden&gt;</span>
+    <span title="feedback logic" style="background-color: #F5A2A2;">&lt;option value=home&gt;</span>
+  <span title="feedback logic" style="background-color: #F5A2A2;">&lt;/datalist&gt;</span>
+  &lt;input <span title="data transmission" style="background-color: #FFFCDD;">name=price</span> <span title="data domain" style="background-color: #DCF7F3;">type=number</span> <span title="user interface" style="background-color: #FFD8D8;">placeholder="Price (in Euros)"</span> <span title="feedback logic" style="background-color: #F5A2A2;">min=1 required</span>&gt;<span title="user interface" style="background-color: #FFD8D8;">&lt;br&gt;</span>
+  <span title="user interface" style="background-color: #FFD8D8;">&lt;input type=submit /&gt;</span>
 &lt;/form&gt;
-</code></div>
+</code></pre>
 
 The different concerns present in the markup have been highlighted to illustrate how they are entangled. But, besides being entangled, they also are redundant with other parts of the code, on the server side. Consider for instance the corresponding form binder in Play:
 
 <pre><code>
 val itemForm = Form(mapping(
-  <span title="data transmission" style="background-color: #F6FC4E;">"name"</span> -> <span title="data domain" style="background-color: #1FA34B;">nonEmptyText</span>,
-  <span title="data transmission" style="background-color: #F6FC4E;">"category"</span> -> <span title="data domain" style="background-color: #1FA34B;">optional(nonEmptyText)</span>,
-  <span title="data transmission" style="background-color: #F6FC4E;">"price"</span> -> <span title="data domain" style="background-color: #1FA34B;">double</span><span title="feedback logic" style="background-color: #C90A13;">(min = 1)</span>
+  <span title="data transmission" style="background-color: #FFFCDD;">"name"</span> -> <span title="data domain" style="background-color: #DCF7F3;">nonEmptyText</span>,
+  <span title="data transmission" style="background-color: #FFFCDD;">"category"</span> -> <span title="data domain" style="background-color: #DCF7F3;">optional(nonEmptyText)</span>,
+  <span title="data transmission" style="background-color: #FFFCDD;">"price"</span> -> <span title="data domain" style="background-color: #DCF7F3;">double</span><span title="feedback logic" style="background-color: #F5A2A2;">(min = 1)</span>
 )(Item.apply, Item.unapply))
 
-<span title="data domain" style="background-color: #1FA34B;">case class Item(name: String, category: Option[String], price: Double)</span>
+<span title="data domain" style="background-color: #DCF7F3;">case class Item(name: String, category: Option[String], price: Double)</span>
 </code></pre>
 
 It turns out that our markup duplicates information already present in the form binder definition (field names, input types and validation constraints), but also adds its own value (form look and placeholders). Similarly, it turns out that the form binder definition almost duplicates information already present in the case class definition (field types) but also adds its own value (validation constraints).
