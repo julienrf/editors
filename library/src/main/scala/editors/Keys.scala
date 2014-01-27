@@ -14,9 +14,9 @@ object Keys {
     val keys = ks
   }
 
-  implicit def default[A]: Keys[A] = macro ???
+  implicit def gen[A]: Keys[A] = macro ???
 
-  implicit def fields[A] = macro ???
+  def fields[A] = macro ???
 
   // Expansion of the `Keys.fields[User]` macro call
   def `fields[User]`(name: String = "name", age: String = "age") = Keys[User](name, age)

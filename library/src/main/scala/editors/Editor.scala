@@ -35,7 +35,7 @@ trait Editors extends Look {
 
     import language.experimental.macros
 
-    def apply[A]: Editor[A] = macro ???
+    implicit def gen[A]: Editor[A] = macro ???
 
 //    type EditorMaker[A] = String => Editor[A]
 //

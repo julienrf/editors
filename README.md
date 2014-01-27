@@ -8,7 +8,7 @@ Information and communications technologies bring up a lot of power to solve rea
 
 To my experience, developing an editor is one of the less productive engineering task. It seems that capitalizing editors code is challenging, probably because several abstraction layers and concerns are involved and entangled: user interface, feedback logic (completion, validation, etc.), data transmission from and to the server and data domain. Consider for instance the following HTML fragment defining a form to enter a shop item description:
 
-<pre><code>
+<div><code>
 &lt;form <span title="data transmission" style="background-color: #F6FC4E;">method=POST action="/item"</span>&gt;
   &lt;input <span title="data transmission" style="background-color: #F6FC4E;">name=name</span> <span title="data domain" style="background-color: #1FA34B;">type=text</span> <span title="user interface" style="background-color: #DD168D;">placeholder="Name"</span> <span title="feedback logic" style="background-color: #C90A13;">required</span>&gt;<span title="user interface" style="background-color: #DD168D;">&lt;br&gt;</span>
   &lt;input <span title="data transmission" style="background-color: #F6FC4E;">name=category</span> <span title="data domain" style="background-color: #1FA34B;">type=text</span> <span title="user interface" style="background-color: #DD168D;">placeholder="Category"</span> <span title="feedback logic" style="background-color: #C90A13;">datalist=categories</span>&gt;<span title="user interface" style="background-color: #DD168D;">&lt;br&gt;</span>
@@ -20,7 +20,7 @@ To my experience, developing an editor is one of the less productive engineering
   &lt;input <span title="data transmission" style="background-color: #F6FC4E;">name=price</span> <span title="data domain" style="background-color: #1FA34B;">type=number</span> <span title="user interface" style="background-color: #DD168D;">placeholder="Price (in Euros)"</span> <span title="feedback logic" style="background-color: #C90A13;">min=1 required</span>&gt;<span title="user interface" style="background-color: #DD168D;">&lt;br&gt;</span>
   <span title="user interface" style="background-color: #DD168D;">&lt;input type=submit /&gt;</span>
 &lt;/form&gt;
-</code></pre>
+</code></div>
 
 The different concerns present in the markup have been highlighted to illustrate how they are entangled. But, besides being entangled, they also are redundant with other parts of the code, on the server side. Consider for instance the corresponding form binder in Play:
 
@@ -144,7 +144,7 @@ implicit val itemPresentation =
 
 #### Add field specific markup
 
-By default the UI markup generation is type directed (using the `Ui[A]` typeclass) but you can completely customize the markup for just one field or for your whole type:
+By default the UI markup generation is type directed (using the `FieldUi[A]` typeclass) but you can completely customize the markup for just one field or for your whole type:
 
 ```scala
 implicit def itemUi(implicit Keys: Keys[Item]) =
