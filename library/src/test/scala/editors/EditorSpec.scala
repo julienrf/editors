@@ -6,16 +6,16 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.api.mvc.Call
 import editors.bakery.Application
+import scala.util.{Failure, Success}
 
 object EditorSpec extends Specification with Editors with SimpleLook {
 
   "Editor" should {
 
-    def editor(implicit Ui: Ui[User], Mapping: Mapping[User]) = Editor.`gen[User]`()
-
     "generate forms for record types" in {
 
       "automatically" in {
+        val editor = Editor[User]
         editor.ui.contains(<input type="text" name="name" />) must beTrue
         editor.ui.contains(<input type="number" name="age" />) must beTrue
         editor.ui.length must equalTo (2)
@@ -23,12 +23,14 @@ object EditorSpec extends Specification with Editors with SimpleLook {
 
       "with custom presentation data" in {
         implicit val userKeys = Key.`fields[User]`(name = "user_name", age = "user_age")
+        val editor = Editor[User]
         editor.ui.contains(<input type="text" name="user_name" />) must beTrue
         editor.ui.contains(<input type="number" name="user_age" />) must beTrue
         editor.ui.length must equalTo (2)
       }
 
       "whole form" in {
+        val editor = Editor[User]
         val form = editor.formUi(Call("POST", "/submit"))
         form.label must equalTo ("form")
         form.attribute("method").get.apply(0).text must equalTo ("POST")
@@ -39,6 +41,7 @@ object EditorSpec extends Specification with Editors with SimpleLook {
 
       "form with customized field" in {
         implicit val userUi = Ui.`fields[User]`(age = FieldUi(key => FieldUi.input(key, "number") ++ <span>From 7 to 77.</span>))
+        val editor = Editor[User]
         editor.ui.contains(<input type="text" name="name" />) must beTrue
         editor.ui.contains(<input type="number" name="age" />) must beTrue
         editor.ui.contains(<span>From 7 to 77.</span>) must beTrue
@@ -46,11 +49,12 @@ object EditorSpec extends Specification with Editors with SimpleLook {
     }
 
     "bind data from form submission" in {
+      val editor = Editor[User]
       "successfully" in {
-        editor.bind(Map("name" -> Seq("julien"), "age" -> Seq("28"))) must beSome (User("julien", 28))
+        editor.bind(Map("name" -> Seq("julien"), "age" -> Seq("28"))) must beSuccessfulTry.withValue(User("julien", 28))
       }
       "with failure" in {
-        editor.bind(Map("name" -> Seq("julien"), "age" -> Seq("twenty-height"))) must beNone
+        editor.bind(Map("name" -> Seq("julien"), "age" -> Seq("twenty-height"))) must beFailedTry
       }
       "from within a Play action" in {
         val submissionAction = editor.submission[AnyContent](data => Results.Ok)

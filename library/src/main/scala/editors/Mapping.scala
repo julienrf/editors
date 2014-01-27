@@ -12,7 +12,7 @@ trait Mapping[A] {
    * @param data Data to bind the value from. It has type `Seq[String]` because the default HTTP content type (form-urlencoded) allows to map several values to a given key.
    * @return Some value if the binding was successful, otherwise `None`
    */
-  def bind(key: String, data: Map[String, Seq[String]]): Option[A]
+  def bind(data: Map[String, Seq[String]]): Try[A]
 
 //  /**
 //   * @param value Value to unbind
@@ -31,7 +31,7 @@ object Mapping {
 
   // TODO Use a more sophisticated data type for Keys so that keys access is type safe
   def `fields[User]`(name: FieldMapping[String] = implicitly[FieldMapping[String]], age: FieldMapping[Int] = implicitly[FieldMapping[Int]])(implicit Keys: Key[User]) = new Mapping[User] {
-    def bind(key: String, data: Map[String, Seq[String]]) =
+    def bind(data: Map[String, Seq[String]]) =
       for {
         nameValue <- name.bind(data.get(Keys.keys(0)) getOrElse Nil)
         ageValue <- age.bind(data.get(Keys.keys(1)) getOrElse Nil)
@@ -44,7 +44,7 @@ object Mapping {
 
 trait FieldMapping[A] {
 
-  def bind(data: Seq[String]): Option[A]
+  def bind(data: Seq[String]): Try[A]
 
   def unbind(value: A): String
 
@@ -53,17 +53,17 @@ trait FieldMapping[A] {
 object FieldMapping {
 
   implicit val stringMapping: FieldMapping[String] = new FieldMapping[String] {
-    def bind(data: Seq[String]) = data.headOption
+    def bind(data: Seq[String]) = Try(data.head)
     def unbind(value: String) = value
   }
 
   implicit val intMapping: FieldMapping[Int] = new FieldMapping[Int] {
-    def bind(data: Seq[String]) = Try(data.headOption.map(_.toInt)).toOption.flatten
+    def bind(data: Seq[String]) = Try(data.head.toInt)
     def unbind(value: Int) = value.toString
   }
 
   implicit val doubleMapping: FieldMapping[Double] = new FieldMapping[Double] {
-    def bind(data: Seq[String]) = Try(data.headOption.map(_.toDouble)).toOption.flatten
+    def bind(data: Seq[String]) = Try(data.head.toDouble)
     def unbind(value: Double) = value.toString
   }
 

@@ -1,7 +1,7 @@
 package editors
 
 import play.api.mvc._
-import scala.xml.NodeSeq
+import scala.util.{Success, Try}
 
 trait Editors extends Uis {
 
@@ -18,14 +18,14 @@ trait Editors extends Uis {
         { ui }
       </form>
 
-    def bind(data: Map[String, Seq[String]]): Option[A]
+    def bind(data: Map[String, Seq[String]]): Try[A]
 
   //   def unbind: Option[A]
 
     def submission[B](f: A => SimpleResult)(implicit DataReader: DataReader[B]): Action[B] = Action(DataReader.bodyParser) { implicit request =>
       bind(DataReader.read(request.body)) match {
-        case Some(a) => f(a)
-        case None => Results.UnprocessableEntity
+        case Success(a) => f(a)
+        case _ => Results.UnprocessableEntity
       }
     }
 
@@ -35,12 +35,14 @@ trait Editors extends Uis {
 
     import language.experimental.macros
 
-    implicit def gen[A](implicit UiModule: Uis): Editor[A] = macro ???
+    @inline def apply[A : Editor]: Editor[A] = implicitly[Editor[A]]
+
+    implicit def gen[A](implicit Ui: Ui[A], Mapping: Mapping[A]): Editor[A] = macro ???
 
     // Expansion of the `gen[User]` macro call
-    def `gen[User]`()(implicit Ui: Ui[User], Mapping: Mapping[User]) = new Editor[User] {
+    implicit def `gen[User]`(implicit Ui: Ui[User], Mapping: Mapping[User]): Editor[User] = new Editor[User] {
       def ui = Ui.ui
-      def bind(data: Map[String, Seq[String]]) = Mapping.bind("", data)
+      def bind(data: Map[String, Seq[String]]) = Mapping.bind(data)
     }
 
   }
