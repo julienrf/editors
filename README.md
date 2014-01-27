@@ -134,7 +134,7 @@ import editors.themes.twitterBootstrap._
 Each theme can have its own characteristics (use labels or placeholders, use a hint text, etc.), and, within a given theme, you can set per field information (label, hint, etc.):
 
 ```scala
-implicit def itemPresentation =
+implicit val itemPresentation =
   Presentation.fields[Item](
     name = FieldPresentation(placeholder = "Name"),
     category = FieldPresentation(placeholder = "Category"),
@@ -144,9 +144,22 @@ implicit def itemPresentation =
 
 #### Add field specific markup
 
+By default the UI markup generation is type directed (using the `Ui[A]` typeclass) but you can completely customize the markup for just one field or for your whole type:
+
 ```scala
-???
+implicit def itemUi(implicit Keys: Keys[Item]) =
+  Ui.fields[Item](
+    name = FieldUi { field =>
+      inputText(field, "datalist" -> "categories") ++ <datalist id="categories">
+        <option value="food" />
+        <option value="garden" />
+        <option value="home" />
+      </datalist>
+    }
+  )
 ```
+
+The above code uses UI combinators functions to generate markup consistent with the selected theme. Each theme is responsible of defining such combinators.
 
 ## Installation
 
