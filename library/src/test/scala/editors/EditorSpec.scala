@@ -11,13 +11,7 @@ object EditorSpec extends Specification with Editors with SimpleLook {
 
   "Editor" should {
 
-    // TODO Move this into Editor companion object
-    // Expansion of the `Editor[User]` macro call
-    def `Editor[User]`()(implicit Ui: Ui[User], Mapping: Mapping[User]) = new Editor[User] {
-      def ui = Ui.ui("")
-      def bind(data: Map[String, Seq[String]]) = Mapping.bind("", data)
-    }
-    implicit def editor(implicit Ui: Ui[User], Mapping: Mapping[User]) = `Editor[User]`()
+    def editor(implicit Ui: Ui[User], Mapping: Mapping[User]) = Editor.`gen[User]`()
 
     "generate forms for record types" in {
 
@@ -28,7 +22,7 @@ object EditorSpec extends Specification with Editors with SimpleLook {
       }
 
       "with custom presentation data" in {
-        implicit val userKeys = Keys.`fields[User]`(name = "user_name", age = "user_age")
+        implicit val userKeys = Key.`fields[User]`(name = "user_name", age = "user_age")
         editor.ui.contains(<input type="text" name="user_name" />) must beTrue
         editor.ui.contains(<input type="number" name="user_age" />) must beTrue
         editor.ui.length must equalTo (2)
@@ -44,7 +38,7 @@ object EditorSpec extends Specification with Editors with SimpleLook {
       }
 
       "form with customized field" in {
-        implicit val userUi = Ui.`fields[User]`(age = Ui(key => Ui.input(key, "number") ++ <span>From 7 to 77.</span>))
+        implicit val userUi = Ui.`fields[User]`(age = FieldUi(key => FieldUi.input(key, "number") ++ <span>From 7 to 77.</span>))
         editor.ui.contains(<input type="text" name="name" />) must beTrue
         editor.ui.contains(<input type="number" name="age" />) must beTrue
         editor.ui.contains(<span>From 7 to 77.</span>) must beTrue

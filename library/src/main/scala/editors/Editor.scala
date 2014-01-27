@@ -3,7 +3,7 @@ package editors
 import play.api.mvc._
 import scala.xml.NodeSeq
 
-trait Editors extends Look {
+trait Editors extends Uis {
 
   /**
    * Typeclass defining an editor for a given data type `A`
@@ -35,40 +35,13 @@ trait Editors extends Look {
 
     import language.experimental.macros
 
-    implicit def gen[A]: Editor[A] = macro ???
+    implicit def gen[A](implicit UiModule: Uis): Editor[A] = macro ???
 
-//    type EditorMaker[A] = String => Editor[A]
-//
-//    def apply[A, B](field1: (String, EditorMaker[A]), field2: (String, EditorMaker[B])): Editor[(A, B)] = new Editor[(A, B)] {
-//
-//      val aEditor = field1._2(field1._1)
-//      val bEditor = field2._2(field2._1)
-//
-//      def ui = aEditor.ui ++ bEditor.ui
-//
-//      def bind(data: Map[String, Seq[String]]): Option[(A, B)] =
-//        for {
-//          a <- aEditor.bind(data)
-//          b <- bEditor.bind(data)
-//        } yield (a, b)
-//
-//    }
-//
-//    def apply[A](implicit Mapping: Mapping[A], UiData: UiData[A]): EditorMaker[A] = key => new Editor[A] {
-//
-//      def ui = UiMaker(FieldData(key)).ui
-//
-//      def bind(data: Map[String, Seq[String]]) =
-//        for {
-//          d <- data.get(key)
-//          s <- Mapping.bind(d)
-//        } yield s
-//
-//    }
-//
-//    def text(implicit UiMaker: UiMaker[String], Mapping: Mapping[String]): EditorMaker[String] = apply[String]
-//
-//    def number(implicit UiMaker: UiMaker[Int], Mapping: Mapping[Int]): EditorMaker[Int] = apply[Int]
+    // Expansion of the `gen[User]` macro call
+    def `gen[User]`()(implicit Ui: Ui[User], Mapping: Mapping[User]) = new Editor[User] {
+      def ui = Ui.ui
+      def bind(data: Map[String, Seq[String]]) = Mapping.bind("", data)
+    }
 
   }
 
