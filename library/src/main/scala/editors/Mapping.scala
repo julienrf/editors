@@ -29,7 +29,7 @@ object Mapping {
 
   def fields[A] = macro ???
 
-  // TODO Use a more sophisticated data type for Keys so that keys access is type safe
+  // TODO Use a more sophisticated data type for Key so that keys access is type safe
   def `fields[User]`(name: FieldMapping[String] = implicitly[FieldMapping[String]], age: FieldMapping[Int] = implicitly[FieldMapping[Int]])(implicit Keys: Key[User]) = new Mapping[User] {
     def bind(data: Map[String, Seq[String]]) =
       for {

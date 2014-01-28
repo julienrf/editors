@@ -77,7 +77,7 @@ trait SimpleLook extends Uis {
     }
 
     // Look specific helper to build an input for a given field
-    def input(key: String, `type`: String = "text", attrs: Seq[(String, String)] = Seq.empty[(String, String)]) = <input type={ `type` } name={ key } />
+    def input(key: String, `type`: String = "text", attrs: Map[String, String] = Map.empty) = <input type={ `type` } name={ key } />
 
   }
 
@@ -85,13 +85,13 @@ trait SimpleLook extends Uis {
 
     import scala.language.experimental.macros
 
-    implicit def gen[A]: Ui[A] = macro ???
+    implicit def gen[A](implicit Key: Key[User]): Ui[A] = ???
 
     def fields[A : Key] = macro ???
 
     // Expansion of the `Ui.fields[User]` macro call
-    def `fields[User]`(name: FieldUi[String] = implicitly[FieldUi[String]], age: FieldUi[Int] = implicitly[FieldUi[Int]])(implicit Keys: Key[User]): Ui[User] =
-      Ui[User](look.append(name.ui(Keys.keys(0)), age.ui(Keys.keys(1))))
+    def `fields[User]`(name: FieldUi[String] = implicitly[FieldUi[String]], age: FieldUi[Int] = implicitly[FieldUi[Int]])(implicit Key: Key[User]): Ui[User] =
+      Ui[User](look.append(name.ui(Key.keys(0)), age.ui(Key.keys(1))))
     // Expansion of `Ui.gen[User]`
     implicit def `gen[User]`(implicit Keys: Key[User], stringFieldUi: FieldUi[String], intFieldUi: FieldUi[Int]): Ui[User] = `fields[User]`()
 
@@ -107,11 +107,25 @@ trait TwitterBootstrapLook extends Uis {
   case class FieldData(key: String,
                     label: Option[String],
                     hint: Option[String],
-                    placeholder: Option[String])
+                    placeholder: Option[String],
+                    validationRules: ???)
 
   case class Ui[A](ui: NodeSeq) extends UiLike[A]
 
-  // TODO Companion object
+  object Ui {
+
+    import scala.language.experimental.macros
+
+    implicit def gen[A](implicit Mapping: Mapping[A], Key: Key[User]): Ui[A] = ???
+
+    def fields[A : Mapping : Key] = macro ???
+
+    def `fields[User]`(name: FieldUi[String] = implicitly[FieldUi[String]], age: FieldUi[Int] = implicitly[FieldUi[Int]])(implicit Mapping: Mapping[User], Key: Key[User]): Ui[User] =
+      Ui[User](look.append(name.ui(???), age.ui(???)))
+
+    implicit def `gen[User]`(implicit Mapping: Mapping[User], Key: Key[User]): Ui[User] = `fields[User]`()
+
+  }
 
   trait FieldUi[A] extends FieldUiLike[A]
 
