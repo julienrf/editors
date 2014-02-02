@@ -9,10 +9,28 @@ import scala.xml.NodeSeq
  */
 trait Uis {
 
+  trait Presentation[A] {
+    private[editors] def presentations: Seq[FieldPresentation]
+  }
+
+  object Presentation {
+
+    import language.experimental.macros
+
+    implicit def gen[A]: Presentation[A] = ???
+
+    def fields[A] = macro ???
+
+    def apply[A](ps: FieldPresentation*): Presentation[A] = new Presentation[A] {
+      val presentations = ps
+    }
+
+  }
+
   /**
    * Presentational data needed for this look (e.g. label, input name, placeholder, etc.)
    */
-  type FieldData
+  type FieldPresentation
 
   type UiType = NodeSeq
 
@@ -33,7 +51,7 @@ trait Uis {
   type FieldUi[A] <: FieldUiLike[A]
 
   trait FieldUiLike[A] {
-    def ui(data: FieldData): UiType
+    def ui(data: FieldPresentation): UiType
   }
 
   // TODO Make it extensible (and abstract over NodeSeq)
@@ -48,7 +66,7 @@ trait Uis {
  */
 trait SimpleLook extends Uis {
 
-  type FieldData = String // just the input name
+  type FieldPresentation = String // just the input name
 
   case class Ui[A](ui: NodeSeq) extends UiLike[A]
 
@@ -57,7 +75,7 @@ trait SimpleLook extends Uis {
   object FieldUi {
 
     def apply[A](f: String => NodeSeq): FieldUi[A] = new FieldUi[A] {
-      def ui(data: FieldData) = f(data)
+      def ui(data: FieldPresentation) = f(data)
     }
 
     implicit val uiInt: FieldUi[Int] = new FieldUi[Int] {
@@ -104,7 +122,11 @@ trait SimpleLook extends Uis {
  */
 trait TwitterBootstrapLook extends Uis {
 
-  case class FieldData(key: String,
+  def `FieldPresentation[User.name]` = FieldPresentation("name", Some("Name:"), None, None, ???)
+  def `FieldPresentation[User.age]` = FieldPresentation("age", Some("Age:"), None, None, ???)
+  def `Presentation.fields[User]`(name: FieldPresentation = `FieldPresentation[User.name]`, age: FieldPresentation = `FieldPresentation[User.age]`): Presentation[User] = Presentation[User](name, age)
+
+  case class FieldPresentation(key: String,
                     label: Option[String],
                     hint: Option[String],
                     placeholder: Option[String],
@@ -116,11 +138,11 @@ trait TwitterBootstrapLook extends Uis {
 
     import scala.language.experimental.macros
 
-    implicit def gen[A](implicit Mapping: Mapping[A], Key: Key[User]): Ui[A] = ???
+    implicit def gen[A : Mapping : Key : Presentation]: Ui[A] = ???
 
-    def fields[A : Mapping : Key] = macro ???
+    def fields[A : Mapping : Key : Presentation] = macro ???
 
-    def `fields[User]`(name: FieldUi[String] = implicitly[FieldUi[String]], age: FieldUi[Int] = implicitly[FieldUi[Int]])(implicit Mapping: Mapping[User], Key: Key[User]): Ui[User] =
+    def `fields[User]`(name: FieldUi[String] = implicitly[FieldUi[String]], age: FieldUi[Int] = implicitly[FieldUi[Int]])(implicit Mapping: Mapping[User], Key: Key[User], Presentation: Presentation[User]): Ui[User] =
       Ui[User](look.append(name.ui(???), age.ui(???)))
 
     implicit def `gen[User]`(implicit Mapping: Mapping[User], Key: Key[User]): Ui[User] = `fields[User]`()
@@ -131,19 +153,19 @@ trait TwitterBootstrapLook extends Uis {
 
   object FieldUi {
     implicit val uiInt: FieldUi[Int] = new FieldUi[Int] {
-      def ui(data: FieldData) = <input type="number" name={ data.key } />
+      def ui(data: FieldPresentation) = <input type="number" name={ data.key } />
     }
 
     implicit val uiDouble: FieldUi[Double] = new FieldUi[Double] {
-      def ui(data: FieldData) = <input type="number" name={ data.key } />
+      def ui(data: FieldPresentation) = <input type="number" name={ data.key } />
     }
 
     implicit val uiBoolean: FieldUi[Boolean] = new FieldUi[Boolean] {
-      def ui(data: FieldData) = <input type="checkbox" name={ data.key } />
+      def ui(data: FieldPresentation) = <input type="checkbox" name={ data.key } />
     }
 
     implicit val uiString: FieldUi[String] = new FieldUi[String] {
-      def ui(data: FieldData) = <input type="text" name={ data.key } />
+      def ui(data: FieldPresentation) = <input type="text" name={ data.key } />
     }
   }
 

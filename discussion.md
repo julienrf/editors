@@ -45,3 +45,8 @@ Not all presentational information can be derived from a data type definition. Y
 
 ## Typeclasses factory methods
 
+## Per field presentation information and keys
+
+The marshalling process and the UI of a field are tied to the field type: usually you want to use an input type of `number` to deal with `Int` fields and you want to parse it as a number in the marshalling process. That’s why these concerns are represented with typeclasses: the `FieldUi[A]` typeclass defines the UI of a field of type `A` and the `FieldMapping[A]` defines the mapping process for a field of type `A`.
+
+On the other hand, the name of the presentational data of a field and the key used in the marshalling process can not be derived from their type. Therefore, typeclasses can not help. In those cases, a macro generates for each field a default value that can be overriden by using named parameters.
