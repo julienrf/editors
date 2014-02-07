@@ -19,9 +19,9 @@ object State {
 object RecipeEditor extends Editors with TwitterBootstrapLook {
 
   // Expansions of `TwitterBootstrapLook.FieldData.of` macro
-  def defaultIngredientNameFieldData = FieldPresentation("name", Some("Name"), None, None, ???)
-  def defaultIngredientAmountFieldData = FieldPresentation("amount", Some("Amount"), None, None, ???)
-  def defaultIngredientUnitFieldData = FieldPresentation("unit", Some("Unit"), None, None, ???)
+  def defaultIngredientNameFieldData = FieldPresentation("name", Some("Name"), None, None, Seq.empty)
+  def defaultIngredientAmountFieldData = FieldPresentation("amount", Some("Amount"), None, None, Seq.empty)
+  def defaultIngredientUnitFieldData = FieldPresentation("unit", Some("Unit"), None, None, Seq.empty)
 
   // Expansion of the Editor.apply[Ingredient] macro
 //  def ingredientEditor(

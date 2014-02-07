@@ -53,7 +53,7 @@ trait FieldMapping[A] {
 object FieldMapping {
 
   implicit val stringMapping: FieldMapping[String] = new FieldMapping[String] {
-    def bind(data: Seq[String]) = Try(data.head)
+    def bind(data: Seq[String]) = Try(data.head).filter(_.nonEmpty)
     def unbind(value: String) = value
   }
 

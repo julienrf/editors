@@ -2,30 +2,16 @@ package editors
 
 import scala.language.higherKinds
 
-import scala.xml.NodeSeq
+import scala.xml.{Node, NodeSeq}
 
 /**
  * Base interface for presentational aspects of editors
  */
 trait Uis {
 
-  trait Presentation[A] {
-    private[editors] def presentations: Seq[FieldPresentation]
-  }
+  type Presentation[A] <: PresentationLike[A]
 
-  object Presentation {
-
-    import language.experimental.macros
-
-    implicit def gen[A]: Presentation[A] = ???
-
-    def fields[A] = macro ???
-
-    def apply[A](ps: FieldPresentation*): Presentation[A] = new Presentation[A] {
-      val presentations = ps
-    }
-
-  }
+  trait PresentationLike[A]
 
   /**
    * Presentational data needed for this look (e.g. label, input name, placeholder, etc.)
@@ -65,6 +51,25 @@ trait Uis {
  * No label, hint or error message. Just input fields.
  */
 trait SimpleLook extends Uis {
+
+  // TODO Factor out duplicated code with BootstrapLook
+  trait Presentation[A] extends PresentationLike[A] {
+    private[editors] def presentations: Seq[FieldPresentation]
+  }
+
+  object Presentation {
+
+    import language.experimental.macros
+
+    implicit def gen[A]: Presentation[A] = ???
+
+    def fields[A] = macro ???
+
+    def apply[A](ps: FieldPresentation*): Presentation[A] = new Presentation[A] {
+      val presentations = ps
+    }
+
+  }
 
   type FieldPresentation = String // just the input name
 
@@ -122,15 +127,34 @@ trait SimpleLook extends Uis {
  */
 trait TwitterBootstrapLook extends Uis {
 
-  def `FieldPresentation[User.name]` = FieldPresentation("name", Some("Name:"), None, None, ???)
-  def `FieldPresentation[User.age]` = FieldPresentation("age", Some("Age:"), None, None, ???)
-  def `Presentation.fields[User]`(name: FieldPresentation = `FieldPresentation[User.name]`, age: FieldPresentation = `FieldPresentation[User.age]`): Presentation[User] = Presentation[User](name, age)
+  trait Presentation[A] extends PresentationLike[A] {
+    private[editors] def presentations: Seq[FieldPresentation]
+  }
+
+  object Presentation {
+
+    import language.experimental.macros
+
+    implicit def gen[A]: Presentation[A] = ???
+
+    def fields[A] = macro ???
+
+    def apply[A](ps: FieldPresentation*): Presentation[A] = new Presentation[A] {
+      val presentations = ps
+    }
+
+    def `FieldPresentation[User.name]` = FieldPresentation("name", Some("Name:"), None, Some("Enter name"), Seq.empty)
+    def `FieldPresentation[User.age]` = FieldPresentation("age", Some("Age:"), None, Some("Enter age"), Seq.empty)
+    def `fields[User]`(name: FieldPresentation = `FieldPresentation[User.name]`, age: FieldPresentation = `FieldPresentation[User.age]`): Presentation[User] = Presentation[User](name, age)
+    implicit def `gen[User]`: Presentation[User] = `fields[User]`()
+
+  }
 
   case class FieldPresentation(key: String,
                     label: Option[String],
                     hint: Option[String],
                     placeholder: Option[String],
-                    validationRules: ???)
+                    validationRules: Seq[???])
 
   case class Ui[A](ui: NodeSeq) extends UiLike[A]
 
@@ -142,10 +166,11 @@ trait TwitterBootstrapLook extends Uis {
 
     def fields[A : Mapping : Key : Presentation] = macro ???
 
+    // FIXME Do I need to depend on Mapping and Key?
     def `fields[User]`(name: FieldUi[String] = implicitly[FieldUi[String]], age: FieldUi[Int] = implicitly[FieldUi[Int]])(implicit Mapping: Mapping[User], Key: Key[User], Presentation: Presentation[User]): Ui[User] =
-      Ui[User](look.append(name.ui(???), age.ui(???)))
+      Ui[User](look.append(name.ui(Presentation.presentations(0)), age.ui(Presentation.presentations(1))))
 
-    implicit def `gen[User]`(implicit Mapping: Mapping[User], Key: Key[User]): Ui[User] = `fields[User]`()
+    implicit def `gen[User]`(implicit Mapping: Mapping[User], Key: Key[User], Presentation: Presentation[User]): Ui[User] = `fields[User]`()
 
   }
 
@@ -153,20 +178,31 @@ trait TwitterBootstrapLook extends Uis {
 
   object FieldUi {
     implicit val uiInt: FieldUi[Int] = new FieldUi[Int] {
-      def ui(data: FieldPresentation) = <input type="number" name={ data.key } />
+      def ui(data: FieldPresentation) = formGroup(data, input("number", data))
     }
 
     implicit val uiDouble: FieldUi[Double] = new FieldUi[Double] {
-      def ui(data: FieldPresentation) = <input type="number" name={ data.key } />
+      def ui(data: FieldPresentation) = formGroup(data, input("number", data))
     }
 
     implicit val uiBoolean: FieldUi[Boolean] = new FieldUi[Boolean] {
-      def ui(data: FieldPresentation) = <input type="checkbox" name={ data.key } />
+      def ui(data: FieldPresentation) = formGroup(data, input("checkbox", data))
     }
 
     implicit val uiString: FieldUi[String] = new FieldUi[String] {
-      def ui(data: FieldPresentation) = <input type="text" name={ data.key } />
+      def ui(data: FieldPresentation) = formGroup(data, input("text", data))
     }
+
+    def input(`type`: String, data: FieldPresentation) =
+      <input name={ data.key } type={ `type` } placeholder={ data.placeholder getOrElse "" } />
+
+    def formGroup(data: FieldPresentation, input: Node) =
+      <div class="form-group">
+        <label>
+          { data.label getOrElse "" }
+          { input }
+        </label>
+      </div>
   }
 
 }

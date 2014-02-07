@@ -8,29 +8,46 @@ import play.api.mvc.Call
 import editors.bakery.Application
 import scala.util.{Failure, Success}
 
-object EditorSpec extends Specification with Editors with SimpleLook {
+object EditorSpec extends Specification {
+
+  object SimpleEditor extends Editors with SimpleLook
+  object BootstrapEditor extends Editors with TwitterBootstrapLook
 
   "Editor" should {
 
     "generate forms for record types" in {
 
       "automatically" in {
-        val editor = Editor[User]
+        val editor = SimpleEditor.Editor[User]
         editor.ui.contains(<input type="text" name="name" />) must beTrue
         editor.ui.contains(<input type="number" name="age" />) must beTrue
         editor.ui.length must equalTo (2)
       }
 
-      "with custom presentation data" in {
+      "with custom keys" in {
         implicit val userKeys = Key.`fields[User]`(name = "user_name", age = "user_age")
-        val editor = Editor[User]
+        val editor = SimpleEditor.Editor[User]
         editor.ui.contains(<input type="text" name="user_name" />) must beTrue
         editor.ui.contains(<input type="number" name="user_age" />) must beTrue
         editor.ui.length must equalTo (2)
       }
 
+      "with different looks" in {
+        val editor = BootstrapEditor.Editor[User]
+        (editor.ui \\ "input").contains(<input name="name" type="text" placeholder="Enter name" />) must beTrue
+      }
+
+      "with custom presentation data" in {
+        implicit val userPresentation =
+          BootstrapEditor.Presentation.`fields[User]`(
+            name = BootstrapEditor.FieldPresentation("name", Some("Name:"), None, placeholder = Some("Enter your name"), Seq.empty) // TODO I want to just write `FieldPresentation(placeholder = "foo")`
+          )
+        val editor = BootstrapEditor.Editor[User]
+        (editor.ui \\ "input").contains(<input name="name" type="text" placeholder="Enter your name" />) must beTrue
+      }
+
       "whole form" in {
-        val editor = Editor[User]
+        val editor = SimpleEditor.Editor[User]
         val form = editor.formUi(Call("POST", "/submit"))
         form.label must equalTo ("form")
         form.attribute("method").get.apply(0).text must equalTo ("POST")
@@ -40,8 +57,8 @@ object EditorSpec extends Specification with Editors with SimpleLook {
       }
 
       "form with customized field" in {
-        implicit val userUi = Ui.`fields[User]`(age = FieldUi(key => FieldUi.input(key, "number") ++ <span>From 7 to 77.</span>))
-        val editor = Editor[User]
+        implicit val userUi = SimpleEditor.Ui.`fields[User]`(age = SimpleEditor.FieldUi(key => SimpleEditor.FieldUi.input(key, "number") ++ <span>From 7 to 77.</span>))
+        val editor = SimpleEditor.Editor[User]
         editor.ui.contains(<input type="text" name="name" />) must beTrue
         editor.ui.contains(<input type="number" name="age" />) must beTrue
         editor.ui.contains(<span>From 7 to 77.</span>) must beTrue
@@ -49,7 +66,7 @@ object EditorSpec extends Specification with Editors with SimpleLook {
     }
 
     "bind data from form submission" in {
-      val editor = Editor[User]
+      val editor = SimpleEditor.Editor[User]
       "successfully" in {
         editor.bind(Map("name" -> Seq("julien"), "age" -> Seq("28"))) must beSuccessfulTry.withValue(User("julien", 28))
       }
