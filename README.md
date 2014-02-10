@@ -25,9 +25,9 @@ Technically, we want an automatic generation system with extension points:
  - per data type (e.g. `Item`),
  - per field (e.g. `Item#name`).
 
-Obviously we want a **combination** of these extension points: e.g. we want to be able to customize just the validation of one field of our data type, and keep everything else automated.
+Obviously we want a *combination* of these extension points: e.g. we want to be able to customize just the validation of one field of our data type, and keep everything else automated.
 
-Typeclasses are a good solution for defining extension points par data type and per concern (by designing one typeclass per concern). But per field extension points is harder to get. We propose a solution using generated methods with default parameters, where each parameter carries information for one field. Then, at usage site, customizing one field can be achieved by passing a named parameter to the function (all the other parameters will get their default value). See examples below.
+Typeclasses are a good solution for defining per data type and per concern extension points (by designing one typeclass per concern). But per field extension points are harder to get. We propose a solution using generated methods with default parameters, where each parameter carries information for one field. Then, at usage site, customizing one field can be achieved by passing a named parameter to the function (all the other parameters will get their default value). See examples below.
 
 ## Quick start
 
