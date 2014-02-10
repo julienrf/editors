@@ -20,6 +20,15 @@ How to reuse the information that is already available in the case class definit
 
 What if we could engineer a data editor just from the data domain definition? We could then bootstrap our application very quickly and progressively enhance it with the missing information related to the validation and presentation concerns.
 
+Technically, we want an automatic generation system with extension points:
+ - per concern (e.g. to customize just the UI or just the validation),
+ - per data type (e.g. `Item`),
+ - per field (e.g. `Item#name`).
+
+Obviously we want a **combination** of these extension points: e.g. we want to be able to customize just the validation of one field of our data type, and keep everything else automated.
+
+Typeclasses are a good solution for defining extension points par data type and per concern (by designing one typeclass per concern). But per field extension points is harder to get. We propose a solution using generated methods with default parameters, where each parameter carries information for one field. Then, at usage site, customizing one field can be achieved by passing a named parameter to the function (all the other parameters will get their default value). See examples below.
+
 ## Quick start
 
 This section shows how to engineer the same editor as in the previous section, but without duplicating information. We will start by generating a basic editor and show how to enhance it progressively.
