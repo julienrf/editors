@@ -10,9 +10,12 @@ lazy val library = project.settings(commonSettings: _*).settings(
   libraryDependencies ++= Seq(
     "com.typesafe.play" %% "play" % "2.2.1",
     "com.typesafe.play" %% "play-test" % "2.2.1" % "test",
-    "org.specs2" %% "specs2" % "2.3.4" % "test"
+    "org.specs2" %% "specs2" % "2.3.4" % "test",
+    "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+    "org.scalamacros" % "quasiquotes" % "2.0.0-M3" cross CrossVersion.full
   ),
-  resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
+  resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
+  addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.0-M3" cross CrossVersion.full)
 )
 
 lazy val sampleBacklog = Project("sample-backlog", file("samples/backlog")).settings(commonSettings: _*).settings(

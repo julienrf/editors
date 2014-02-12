@@ -41,7 +41,7 @@ Back to our example, a basic editor can be generated with just the following cod
 case class Item(name: String, category: Option[String], price: Double)
 
 object ItemEditor extends Editors with SimpleUi {
- val editor = Editor.gen[Item]
+ val editor = Editor[Item]
 }
 ```
 
@@ -119,7 +119,7 @@ The `Ui[A]` typeclass is responsible of generating the editor HTML markup. Defau
 
 ```scala
 object ItemEditor extends Editors with TwitterBootstrapUi {
-  val editor = Editor.gen[Item]
+  val editor = Editor[Item]
 }
 ```
 
