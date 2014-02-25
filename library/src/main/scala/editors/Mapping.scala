@@ -4,6 +4,18 @@ import scala.util.Try
 import play.api.data.mapping.{Failure, Success, Validation}
 import copied.play.api.libs.functional.Applicative
 
+trait Rule[-I, +O] {
+  def validate(i: I): Validation[String, O]
+}
+
+object Rules {
+  def max[A : Numeric](n: A): Rule[A, A] = new Rule[A, A] {
+    def validate(a: A) =
+      if (implicitly[Numeric[A]].gt(a, n)) Failure(Seq(s"$a must not be greater than $n"))
+      else Success(a)
+  }
+}
+
 /**
  * Bidirectional mapping from and to HTTP requests data
  * @tparam A
@@ -12,7 +24,7 @@ trait Mapping[A] {
   /**
    * Bind an `A` value from the given `data`.
    * @param data Data to bind the value from. It has type `Seq[String]` because the default HTTP content type (form-urlencoded) allows to map several values to a given key.
-   * @return Some value if the binding was successful, otherwise `None`
+   * @return A successful value if the binding was successful, otherwise a failure
    */
   def bind(data: Map[String, Seq[String]]): Validation[String, A]
 
@@ -47,9 +59,19 @@ object Mapping {
 
 }
 
-trait FieldMapping[A] {
+trait FieldMapping[A] { outer =>
 
   def bind(data: Seq[String]): Validation[String, A]
+
+  def >>> (rule: Rule[A, A]): FieldMapping[A] = new FieldMapping[A] {
+    def bind(data: Seq[String]) =
+      outer.bind(data).map(rule.validate) match {
+        case Success(Success(b)) => Success(b)
+        case Success(Failure(errors)) => Failure(errors)
+        case Failure(errors) => Failure(errors)
+      }
+    def unbind(value: A) = outer.unbind(value)
+  }
 
   def unbind(value: A): String
 

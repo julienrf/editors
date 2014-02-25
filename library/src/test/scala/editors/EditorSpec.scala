@@ -63,6 +63,12 @@ object EditorSpec extends Specification {
         editor.ui.contains(<input type="number" name="age" />) must beTrue
         editor.ui.contains(<span>From 7 to 77.</span>) must beTrue
       }
+
+      "with custom validation rules" in {
+        implicit def userMapping(implicit Int: FieldMapping[Int]) = Mapping.`fields[User]`(age = Int >>> Rules.max(42))
+        val editor = SimpleEditor.Editor[User]
+        editor.ui.contains(<input type="number" name="age" max="42" />) must beTrue
+      }
     }
 
     "bind data from form submission" in {
@@ -72,6 +78,12 @@ object EditorSpec extends Specification {
       }
       "with failure" in {
         editor.bind(Map("name" -> Seq("julien"), "age" -> Seq("twenty-height"))).isFailure must beTrue
+      }
+      "with custom validation rules" in {
+        implicit def userMapping(implicit Int: FieldMapping[Int]) = Mapping.`fields[User]`(age = Int >>> Rules.max(42))
+        val editor = SimpleEditor.Editor[User]
+        editor.bind(Map("name" -> Seq("julien"), "age" -> Seq("28"))) must beEqualTo (Success(User("julien", 28)))
+        editor.bind(Map("name" -> Seq("julien"), "age" -> Seq("77"))).isFailure must beTrue
       }
       "from within a Play action" in {
         val submissionAction = editor.submission[AnyContent](data => Results.Ok)
@@ -88,12 +100,6 @@ object EditorSpec extends Specification {
         }
       }
     }
-
-    // editor.foo must equalTo (???)
-
-    // editor.bar must equalTo (???)
-
-    "support validation constraints" in pending ("(TODO)")
 
     "handle bidirectional relations" in pending("(TODO)")
 

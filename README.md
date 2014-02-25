@@ -105,7 +105,7 @@ Data validation is considered to be part of the data mapping process: data can b
 The following code defines the validation rule for the `price` field:
 
 ```scala
-implicit def itemMapping(implicit Double: Mapping[Double]) =
+implicit def itemMapping(implicit Double: FieldMapping[Double]) =
   Mapping.fields[Item](price = Double >>> min(1.0))
 ```
 
@@ -158,7 +158,7 @@ The above code uses UI combinators functions to generate markup consistent with 
 ## Installation
 
 ```scala
-libraryDependencies += "com.julienrf" %% "editors" % "0.1-SNAPSHOT"
+libraryDependencies += "org.julienrf" %% "editors" % "0.1-SNAPSHOT"
 ```
 
 ## Build from sources
