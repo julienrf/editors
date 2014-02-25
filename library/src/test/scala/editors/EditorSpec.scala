@@ -6,7 +6,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.api.mvc.Call
 import editors.bakery.Application
-import scala.util.{Failure, Success}
+import play.api.data.mapping.Success
 
 object EditorSpec extends Specification {
 
@@ -68,10 +68,10 @@ object EditorSpec extends Specification {
     "bind data from form submission" in {
       val editor = SimpleEditor.Editor[User]
       "successfully" in {
-        editor.bind(Map("name" -> Seq("julien"), "age" -> Seq("28"))) must beSuccessfulTry.withValue(User("julien", 28))
+        editor.bind(Map("name" -> Seq("julien"), "age" -> Seq("28"))) must beEqualTo (Success(User("julien", 28)))
       }
       "with failure" in {
-        editor.bind(Map("name" -> Seq("julien"), "age" -> Seq("twenty-height"))) must beFailedTry
+        editor.bind(Map("name" -> Seq("julien"), "age" -> Seq("twenty-height"))).isFailure must beTrue
       }
       "from within a Play action" in {
         val submissionAction = editor.submission[AnyContent](data => Results.Ok)

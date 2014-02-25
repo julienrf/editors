@@ -1,7 +1,7 @@
 package editors
 
 import play.api.mvc._
-import scala.util.{Success, Try}
+import play.api.data.mapping.{Success, Validation}
 
 trait Editors extends Uis {
 
@@ -18,7 +18,7 @@ trait Editors extends Uis {
         { ui }
       </form>
 
-    def bind(data: Map[String, Seq[String]]): Try[A]
+    def bind(data: Map[String, Seq[String]]): Validation[String, A]
 
   //   def unbind: Option[A]
 
